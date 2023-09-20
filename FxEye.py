@@ -2,7 +2,6 @@ import argparse
 from bs4 import BeautifulSoup
 import requests
 import sys
-from pyfiglet import figlet_format 
 
 
 
@@ -76,7 +75,7 @@ def get_current_market_price(symbol):
 
         soup = BeautifulSoup(html_content, 'html.parser')
         price_node = soup.find_all(class_='last-price-value')[1]
-        return float(price_node.text)
+        return float(price_node.text.replace(",", ""))
     else:
         print("Failed to retrieve the web page.")
 
@@ -192,8 +191,6 @@ def check_broken_levels():
     print('Done... ')
 
 if __name__ == "__main__":
-    print(figlet_format("FxEye", font = "isometric3" ))
-
     parser = argparse.ArgumentParser(description='Foreign Exchange market script to set support and resistance for specific currency and check when market has broken the boundaries')
     parser.add_argument('-c', '--check', action='store_true', required='--add' not in sys.argv, help='Check for broken support or resistance levels')
     parser.add_argument('-a', '--add', action='store_true', required='--check' not in sys.argv, help='Set boundaries')
