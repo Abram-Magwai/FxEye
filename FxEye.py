@@ -167,7 +167,7 @@ def check_broken_levels():
                         else:
                             delete_line('trade_plans.txt', pair_index)
                     
-                elif 'support' in alert:
+                if 'support' in alert:
                     if len(alert_details) == 3:
                         alert_support = alert_details[2].split(':')[1].strip()
                     else:
