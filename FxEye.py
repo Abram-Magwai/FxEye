@@ -14,10 +14,10 @@ def update_line(file_path, line_number_to_update, new_content):
             lines = file.readlines()
 
         if 1 <= line_number_to_update <= len(lines):
-            lines[line_number_to_update - 1] = new_content
+            lines[line_number_to_update - 1] = new_content+"\n"
 
             with open(file_path, 'w') as file:
-                file.writelines(lines+"\n")
+                file.writelines(lines)
                 print(f"alert {line_number_to_update} updated successfully.")
         else:
             print(f"Line number {line_number_to_update} is out of range.")
