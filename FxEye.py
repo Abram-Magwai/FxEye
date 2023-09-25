@@ -17,7 +17,7 @@ def update_line(file_path, line_number_to_update, new_content):
             lines[line_number_to_update - 1] = new_content
 
             with open(file_path, 'w') as file:
-                file.writelines(lines)
+                file.writelines(lines+"\n")
                 print(f"alert {line_number_to_update} updated successfully.")
         else:
             print(f"Line number {line_number_to_update} is out of range.")
