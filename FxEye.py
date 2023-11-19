@@ -5,6 +5,7 @@ import sys
 import pygame
 import threading
 import datetime
+import sys
 
 
 
@@ -166,8 +167,6 @@ def alert_thread(level:int):
         play_alert_sound()
 
 def check_broken_levels():
-    # This function should run at the background at all times as long as there are trades to look at
-    # 
     try:
         with open('trade_plans.txt', 'r') as file:
             alerts = file.readlines()
@@ -191,7 +190,6 @@ def check_broken_levels():
                             update_line('trade_plans.txt', pair_index, line)
                         else:
                             delete_line('trade_plans.txt', pair_index)
-                        #create sound to show resistance has been broken
                         alert_thread(alert_resistance)
                     
                 if 'support' in alert:
@@ -218,46 +216,50 @@ def check_broken_levels():
         print('No trading alerts found, check help document on how to add alerts')
     print('Done... ')
 
+def monitorMarket():
+    print('FXEye Monitoring market...')
+    print('Waiting for trading hours')
+    trading_hours = False
+    while True:
+        current_hour = datetime.datetime.now().hour
+        if(current_hour >= 9 and current_hour <= 5):
+            if not trading_hours:
+                print('Trading hours have began...')
+                trading_hours = True
+            check_broken_levels()
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Foreign Exchange market script to set support and resistance for specific currency and check when market has broken the boundaries')
-    parser.add_argument('-c', '--check', action='store_true', required='--add' not in sys.argv, help='Check for broken support or resistance levels')
-    parser.add_argument('-a', '--add', action='store_true', required='--check' not in sys.argv, help='Set boundaries')
-    parser.add_argument('-p', '--pair', type=pair, required='--a' in sys.argv, help='Pair name')
+    if len(sys.argv) > 1:
+        parser = argparse.ArgumentParser(description='Foreign Exchange market script to set support and resistance for specific currency and check when market has broken the boundaries')
+        parser.add_argument('-c', '--check', action='store_true', required='--add' not in sys.argv, help='Check for broken support or resistance levels')
+        parser.add_argument('-a', '--add', action='store_true', required='--check' not in sys.argv, help='Set boundaries')
+        parser.add_argument('-p', '--pair', type=pair, required='--a' in sys.argv, help='Pair name')
 
 
-    parser.add_argument('-r', '--resistance', type=float, help='Resistance level rate, e.g 1.0800')
-    parser.add_argument('-s', '--support', type=float, help='Support level rate, e.g 1.0800')
+        parser.add_argument('-r', '--resistance', type=float, help='Resistance level rate, e.g 1.0800')
+        parser.add_argument('-s', '--support', type=float, help='Support level rate, e.g 1.0800')
 
-    args = parser.parse_args()
-    pair = None
-    support = None
-    resistance = None
-
-    if args.add:
-        if not args.pair:
-            parser.error("--pair is required when --add is provided.")
-        if not (args.support or args.resistance):
-            parser.error("--support or --resistance (or both) are required when --add is provided.")
-        
-        pair = args.pair
+        args = parser.parse_args()
+        pair = None
         support = None
         resistance = None
-        if args.resistance is not None:
-            resistance = args.resistance
-        if args.support is not None:
-            support = args.support
 
-        manage_alerts(pair=pair, resistance=resistance, support=support)
-    elif args.check:
-        print('FXEye Monitoring market...')
-        print('Waiting for trading hours')
-        trading_hours = False
-        while True:
-            # check broken levels from 9am until 5pm
-            current_hour = datetime.datetime.now().hour
-            if(current_hour >= 9 and current_hour <= 5):
-                if not trading_hours:
-                    print('Trading hours have began...')
-                    trading_hours = True
-                check_broken_levels()
-    
+        if args.add:
+            if not args.pair:
+                parser.error("--pair is required when --add is provided.")
+            if not (args.support or args.resistance):
+                parser.error("--support or --resistance (or both) are required when --add is provided.")
+            
+            pair = args.pair
+            support = None
+            resistance = None
+            if args.resistance is not None:
+                resistance = args.resistance
+            if args.support is not None:
+                support = args.support
+
+            manage_alerts(pair=pair, resistance=resistance, support=support)
+        elif args.check:
+            monitorMarket()
+    else:
+        monitorMarket()
