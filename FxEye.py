@@ -219,10 +219,12 @@ def check_broken_levels():
 def monitorMarket():
     print('FXEye Monitoring market...')
     print('Waiting for trading hours')
-    trading_hours = False
     while True:
         current_hour = datetime.datetime.now().hour
-        if(current_hour >= 9 and current_hour <= 5):
+        currentDay = datetime.datetime.now().weekday()
+        trading_days = currentDay >= 0 and currentDay <= 4
+        trading_hours = current_hour >= 9 and current_hour <= 17
+        if(trading_days and trading_hours):
             if not trading_hours:
                 print('Trading hours have began...')
                 trading_hours = True
